@@ -7,6 +7,10 @@ const Entry = ({ setEntry }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setName('');
+    setDesc('');
+    setPhone('');
+
     alert(`Entry for ${name} has been submitted`);
     let input = {
       name: name,
@@ -30,7 +34,7 @@ const Entry = ({ setEntry }) => {
   return (
     <div className="entry">
       Add Entry for Phonebook
-      <form onSubmit={handleSubmit}>
+      <form id="phoneEntryForm" onSubmit={handleSubmit}>
         <div className="inputFields">
           <label>Name</label>
           <input type="text" value={name} onChange={handleChange.name} />

@@ -8,12 +8,13 @@ class PhoneBook extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
-      desc: '',
-      phone: '',
       lookupName: '',
-      lookupDesc: '',
-      lookupPhone: '',
+      found: '',
+      result: {
+        name: '',
+        desc: '',
+        phone: '',
+      },
     }
     this.setEntry = this.setEntry.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -21,12 +22,6 @@ class PhoneBook extends React.Component {
   };
 
   setEntry(input) {
-    this.setState({
-      name: input.name,
-      desc: input.desc,
-      phone: input.phone,
-    });
-
     canister.insert(input.name, { desc: input.desc, phone: input.phone });
   }
 
@@ -38,19 +33,21 @@ class PhoneBook extends React.Component {
 
   lookupName() {
     canister.lookup(this.state.lookupName).then(opt_entry => {
-      console.log('here is the info after lookup');
-      console.log(opt_entry);
       let entry = opt_entry.length > 0 ? opt_entry[0] : null;
       if (entry === null || entry === undefined) {
-        entry = {
-          desc: "",
-          phone: "",
-        };
+        this.setState({
+          found: false,
+        });
+      } else {
+        this.setState({
+          found: true,
+          result: {
+            name: this.state.lookupName,
+            desc: entry.desc,
+            phone: entry.phone,
+          }
+        })
       }
-      this.setState({
-        lookupDesc: entry.desc,
-        lookupPhone: entry.phone,
-      })
     })
   }
 
@@ -59,19 +56,21 @@ class PhoneBook extends React.Component {
     return (
       <div className="phonebook">
         <Entry setEntry={this.setEntry} />
+
         <div className="display">
           Lookup info by Name
-          <input type="text" value={this.state.lookupName} onChange={this.handleChange} />
+          <input type="text" onChange={this.handleChange} />
           <button onClick={this.lookupName}>
             Lookup
           </button>
+
           <div id="result">
-            {(!!this.state.lookupDesc === true) || (!!this.state.lookupPhone === true) ?
+            {(!!this.state.found === true) ?
               (
                 <div>
-                  <li>Name: {this.state.name}</li>
-                  <li>Description: {this.state.desc}</li>
-                  <li>Phone Number: {this.state.phone}</li>
+                  <li>Name: {this.state.result.name}</li>
+                  <li>Description: {this.state.result.desc}</li>
+                  <li>Phone Number: {this.state.result.phone}</li>
                 </div>
               )
               : (
@@ -79,7 +78,6 @@ class PhoneBook extends React.Component {
               )
             }
           </div>
-
         </div>
       </div>
     )
